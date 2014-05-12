@@ -1,6 +1,9 @@
-var gpio     = require('pi-gpio');
-var events   = require('events').EventEmitter;
-var movement = false;
+var gpio         = require('pi-gpio');
+var EventEmitter = require('events').EventEmitter;
+var events       = function() {};
+var movement     = false;
+
+util.inherits(events, EventEmitter);
 
 // Ensure pin 7 (PIR) is closed before trying to open it
 gpio.close(7);
