@@ -2,6 +2,6 @@
 	"name"       : "Portal",
 	"author"     : "Joe Holdcroft <info@joeholdcroft.com>",
 	"dependencies": {
-		"pi-gpio": "~0.0.5",
+		"pi-gpio": "~0.0.5"
 	}
 }
