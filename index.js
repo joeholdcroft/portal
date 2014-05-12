@@ -1,18 +1,22 @@
-var gpio = require('rpi-gpio');
+var gpio     = require('pi-gpio');
+var events   = require('events').EventEmitter;
+var movement = false;
+
+// Ensure pin 7 (PIR) is closed before trying to open it
+gpio.close(7);
 
 // Open pin 7 (PIR) for input
-// gpio.open(7, 'input', function(err) {
-// 	// Set timeout for every 500ms to check pin value
-// 	setTimeout(500, function() {
-// 		gpio.read(7, function(err, value) {
-// 			// Close pin 7 (PIR)
-// 			//gpio.close(7);
-// 			console.log(value);
-// 		});
-// 	});
-// });
-
-gpio.on('change', function(channel, value) {
-	console.log('Channel ' + channel + ' value is now ' + value);
+gpio.open(7, 'input', function(err) {
+	// Set interval for every 100ms to check pin value
+	setInterval(function() {
+		gpio.read(7, function(err, value) {
+			events.emit('movement', (1 == value));
+		}, 500);
+	});
 });
-gpio.setup(7, gpio.DIR_IN);
+
+events.on('movement', function(val) {
+	movement = val;
+
+	console.log(movement ? 'Movement detected' : 'Movement stopped');
+});
