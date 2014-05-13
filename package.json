@@ -3,7 +3,7 @@
 	"author"     : "Joe Holdcroft <info@joeholdcroft.com>",
 	"dependencies": {
 		"debug"   : "~0.8.1",
-		"bindings": "~0.8.1",
+		"bindings": "~1.2.0",
 		"pi-gpio" : "~0.0.5",
 		"speaker" : "~0.1.0",
 		"lame"    : "~1.1.0"
