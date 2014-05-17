@@ -1,10 +1,7 @@
 // TODO: use events for movement toggle to tidy up code
-// TODO: loop the audio
-// TODO: fade audio in/out and mute when no movement instead of stopping
 // TODO: fix bug where error when trying to close pin 7 when it isnt open sometimes
-// TODO: as soon as movement is detected, play audio if it's not already
-// if no movement is detected, check that is persistent for 1 second and, if so, turn
-// the audio off
+// TODO: implement quick fades for volume instead of on/off immediately
+// TODO: perhaps implement min amount of time music can be playing for?
 // NOTE: 14 seconds in is some drumming that could work
 
 var audioPath = './audio/dojinsuite.mp3';
