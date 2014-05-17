@@ -6,9 +6,39 @@ var audioPath = './audio/dojinsuite.mp3';
 var fs        = require('fs');
 var lame      = require('lame');
 var Speaker   = require('speaker');
+var speaker   = new Speaker();
+var loudness  = require('loudness');
 var gpio      = require('pi-gpio');
 var movement  = false;
 var audioStream = null;
+
+var startAudio = function() {
+	audioStream = fs.createReadStream(audioPath)
+		.pipe(new lame.Decoder())
+		.on('format', function(format) {
+			this.pipe(new Speaker(format));
+		});
+};
+
+// Start the audio
+startAudio();
+
+// Re-start the audio when it has finished playing
+speaker.on('close', startAudio);
+
+// Test muting after 20 seconds
+setTimeout(function() {
+	loudness.setMuted(true, function() {
+		console.log('muted');
+	});
+}, 1000 * 20);
+
+// Test unmuting after 40 seconds
+setTimeout(function() {
+	loudness.setMuted(true, function() {
+		console.log('un-muted');
+	});
+}, 1000 * 40);
 
 // Ensure pin 7 (PIR) is closed before trying to open it
 gpio.close(7);
@@ -23,17 +53,17 @@ gpio.open(7, 'input', function(err) {
 			if (newMovement !== movement) {
 				console.log(newMovement ? 'Movement detected' : 'Movement stopped');
 
-				if (newMovement && null === audioStream) {
-					audioStream = fs.createReadStream(audioPath)
-						.pipe(new lame.Decoder())
-						.on('format', function(format) {
-							this.pipe(new Speaker(format));
-						});
-				}
-				else if (!newMovement && null !== audioStream) {
-					audioStream.end();
-					audioStream = null;
-				}
+				// if (newMovement && null === audioStream) {
+				// 	audioStream = fs.createReadStream(audioPath)
+				// 		.pipe(new lame.Decoder())
+				// 		.on('format', function(format) {
+				// 			this.pipe(new Speaker(format));
+				// 		});
+				// }
+				// else if (!newMovement && null !== audioStream) {
+				// 	audioStream.end();
+				// 	audioStream = null;
+				// }
 			}
 
 			movement = newMovement;
