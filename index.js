@@ -6,7 +6,7 @@
 // TODO: test in situ
 // NOTE: 14 seconds in is some drumming that could work
 
-var audioPath = process.env.PWD + '/audio/dojinsuite.mp3';
+var audioPath = __dirname + '/audio/dojinsuite.mp3';
 var fs        = require('fs');
 var lame      = require('lame');
 var Speaker   = require('speaker');
