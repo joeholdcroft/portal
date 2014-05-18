@@ -10,7 +10,6 @@ var audioPath = __dirname + '/audio/dojinsuite.mp3';
 var fs        = require('fs');
 var lame      = require('lame');
 var Speaker   = require('speaker');
-var speaker   = new Speaker();
 var loudness  = require('loudness');
 var gpio      = require('pi-gpio');
 var audioStream = null;
@@ -21,15 +20,17 @@ var startAudio = function() {
 	audioStream = fs.createReadStream(audioPath)
 		.pipe(new lame.Decoder())
 		.on('format', function(format) {
-			this.pipe(new Speaker(format));
+			var speaker = new Speaker(format);
+
+			// Re-start the audio when it has finished playing
+			speaker.on('close', startAudio);
+
+			this.pipe(speaker);
 		});
 };
 
 // Start the audio
 startAudio();
-
-// Re-start the audio when it has finished playing
-speaker.on('close', startAudio);
 
 // Check audio is not muted
 loudness.setMuted(false, function() {
