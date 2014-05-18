@@ -36,7 +36,7 @@ var setMuted = function(val) {
 	// Get the current volume
 	loudness.getVolume(function(err, vol) {
 		currentVol = vol;
-		modifier   = targetVol > currentVol ? 1 : -1;
+		modifier   = targetVol > currentVol ? 5 : -5;
 
 		// Start loop to reduce volume by 1 point every 10ms
 		var updateVolume = function() {
@@ -67,54 +67,65 @@ loudness.setVolume(1, function() {
 	muted = true;
 });
 
-// Ensure pin 7 (PIR) is closed before trying to open it
+// Close pin 7 (PIR) on process interrupt signal
 process.on('SIGINT', function() {
 	gpio.close(7);
 	process.exit();
 });
 
-// Open pin 7 (PIR) for input
-gpio.open(7, 'input', function(err) {
-	var muteSampleStart = null;
+var runApp = function() {
+	// Open pin 7 (PIR) for input
+	gpio.open(7, 'input', function(err) {
+		// If there was an error opening the pin, it was probably that it's busy,
+		// so close it and try again
+		if (err) {
+			gpio.close(7);
+			runApp();
+		}
 
-	// Set interval for every 100ms to check pin value
-	setInterval(function() {
-		gpio.read(7, function(err, value) {
-			movement = (1 == value);
+		var muteSampleStart = null;
 
-			// If we have movement and the audio is muted, unmute it
-			if (movement && muted) {
-				debug('Movement started');
-				movementStart = Date.now();
-				setMuted(false);
-				muted = false;
-				muteSampleStart = null;
+		// Set interval for every 100ms to check pin value
+		setInterval(function() {
+			gpio.read(7, function(err, value) {
+				movement = (1 == value);
 
-				return true;
-			}
+				// If we have movement and the audio is muted, unmute it
+				if (movement && muted) {
+					debug('Movement started');
+					movementStart = Date.now();
+					setMuted(false);
+					muted = false;
+					muteSampleStart = null;
 
-			// If unmuted, run sampling to check for movement stopping in a sensible manner
-			if (!muted) {
-				// If we are sampling for movement to mute
-				if (null !== muteSampleStart) {
-					// Reset if there is now some movement
-					if (movement) {
-						muteSampleStart = null;
+					return true;
+				}
+
+				// If unmuted, run sampling to check for movement stopping in a sensible manner
+				if (!muted) {
+					// If we are sampling for movement to mute
+					if (null !== muteSampleStart) {
+						// Reset if there is now some movement
+						if (movement) {
+							muteSampleStart = null;
+						}
+						// If there's still no movement and we have sampled for > 3 sec, mute
+						else if (muteSampleStart < (Date.now() - 3000)) {
+							debug('Movement stopped. Movement lasted ' + (Date.now() - movementStart) + ' milliseconds');
+							setMuted(true);
+							muted = true;
+							muteSampleStart = null;
+							movementStart = null;
+						}
 					}
-					// If there's still no movement and we have sampled for > 3 sec, mute
-					else if (muteSampleStart < (Date.now() - 3000)) {
-						debug('Movement stopped. Movement lasted ' + (Date.now() - movementStart) + ' milliseconds');
-						setMuted(true);
-						muted = true;
-						muteSampleStart = null;
-						movementStart = null;
+					// If we are not sampling and there's no movement, start sampling
+					else if (!movement) {
+						muteSampleStart = Date.now();
 					}
 				}
-				// If we are not sampling and there's no movement, start sampling
-				else if (!movement) {
-					muteSampleStart = Date.now();
-				}
-			}
-		}, 10);
+			}, 10);
+		});
 	});
-});
+};
+
+runApp();
