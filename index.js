@@ -1,6 +1,5 @@
 // TODO: use events for movement toggle to tidy up code
 // TODO: fix bug where error when trying to close pin 7 when it isnt open sometimes
-// TODO: implement quick fades for volume instead of on/off immediately
 // TODO: perhaps implement min amount of time music can be playing for?
 // TODO: implement logging
 // TODO: test in situ
@@ -27,6 +26,33 @@ var startAudio = function() {
 
 			this.pipe(speaker);
 		});
+};
+
+var setMuted = function(val) {
+	targetVol = val ? 1 : 100;
+
+	// Get the current volume
+	loudness.getVolume(function(err, vol) {
+		currentVol = vol;
+		modifier   = targetVol > currentVol ? 1 : -1;
+
+		console.log('fading volume from' + currentVol + ' to ' + targetVol);
+
+		// Start loop to reduce volume by 1 point every 10ms
+		var updateVolume = function() {
+			if (currentVol === targetVol) {
+				return true;
+			}
+
+			currentVol = currentVol + modifier;
+
+			loudness.setVolume(currentVol, function() {
+				updateVolume();
+			});
+		};
+
+		updateVolume();
+	});
 };
 
 // Start the audio
@@ -56,9 +82,7 @@ gpio.open(7, 'input', function(err) {
 
 			// If we have movement and the audio is muted, unmute it
 			if (movement && muted) {
-				loudness.setVolume(100, function() {
-					console.log('Audio unmuted');
-				});
+				setMuted(false);
 				muted = false;
 				muteSampleStart = null;
 
@@ -75,9 +99,7 @@ gpio.open(7, 'input', function(err) {
 					}
 					// If there's still no movement and we have sampled for > 3 sec, mute
 					else if (muteSampleStart < (Date.now() - 3000)) {
-						loudness.setVolume(1, function() {
-							console.log('Audio muted');
-						});
+						setMuted(true);
 						muted = true;
 						muteSampleStart = null;
 					}
