@@ -31,8 +31,12 @@ startAudio();
 // Re-start the audio when it has finished playing
 speaker.on('close', startAudio);
 
+// Check audio is not muted
+loudness.setMuted(false, function() {
+});
+
 // Start by muting the audio
-loudness.setVolume(0, function() {
+loudness.setVolume(1, function() {
 	console.log('Audio muted');
 	muted = true;
 });
@@ -55,6 +59,9 @@ gpio.open(7, 'input', function(err) {
 					console.log('Audio unmuted');
 				});
 				muted = false;
+				muteSampleStart = null;
+
+				return true;
 			}
 
 			// If unmuted, run sampling to check for movement stopping in a sensible manner
@@ -67,7 +74,7 @@ gpio.open(7, 'input', function(err) {
 					}
 					// If there's still no movement and we have sampled for > 3 sec, mute
 					else if (muteSampleStart < (Date.now() - 3000)) {
-						loudness.setVolume(0, function() {
+						loudness.setVolume(1, function() {
 							console.log('Audio muted');
 						});
 						muted = true;
@@ -79,6 +86,6 @@ gpio.open(7, 'input', function(err) {
 					muteSampleStart = Date.now();
 				}
 			}
-		}, 1);
+		}, 10);
 	});
 });
