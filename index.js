@@ -6,6 +6,7 @@
 // NOTE: 14 seconds in is some drumming that could work
 
 var audioPath = __dirname + '/audio/dojinsuite.mp3';
+var debug     = require('debug')('portal:server')
 var fs        = require('fs');
 var lame      = require('lame');
 var Speaker   = require('speaker');
@@ -14,6 +15,7 @@ var gpio      = require('pi-gpio');
 var audioStream = null;
 var lastAudioToggle = null;
 var muted = false;
+var movementStart = null;
 
 var startAudio = function() {
 	audioStream = fs.createReadStream(audioPath)
@@ -35,8 +37,6 @@ var setMuted = function(val) {
 	loudness.getVolume(function(err, vol) {
 		currentVol = vol;
 		modifier   = targetVol > currentVol ? 1 : -1;
-
-		console.log('fading volume from' + currentVol + ' to ' + targetVol);
 
 		// Start loop to reduce volume by 1 point every 10ms
 		var updateVolume = function() {
@@ -64,7 +64,6 @@ loudness.setMuted(false, function() {
 
 // Start by muting the audio
 loudness.setVolume(1, function() {
-	console.log('Audio muted');
 	muted = true;
 });
 
@@ -82,6 +81,8 @@ gpio.open(7, 'input', function(err) {
 
 			// If we have movement and the audio is muted, unmute it
 			if (movement && muted) {
+				debug('Movement started');
+				movementStart = Date.now();
 				setMuted(false);
 				muted = false;
 				muteSampleStart = null;
@@ -99,9 +100,11 @@ gpio.open(7, 'input', function(err) {
 					}
 					// If there's still no movement and we have sampled for > 3 sec, mute
 					else if (muteSampleStart < (Date.now() - 3000)) {
+						debug('Movement stopped. Movement lasted ' + (Date.now() - movementStart) + ' milliseconds');
 						setMuted(true);
 						muted = true;
 						muteSampleStart = null;
+						movementStart = null;
 					}
 				}
 				// If we are not sampling and there's no movement, start sampling
