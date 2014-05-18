@@ -68,7 +68,10 @@ loudness.setVolume(1, function() {
 });
 
 // Ensure pin 7 (PIR) is closed before trying to open it
-gpio.close(7);
+process.on('SIGINT', function() {
+	gpio.close(7);
+	process.exit();
+});
 
 // Open pin 7 (PIR) for input
 gpio.open(7, 'input', function(err) {
