@@ -2,9 +2,11 @@
 // TODO: fix bug where error when trying to close pin 7 when it isnt open sometimes
 // TODO: implement quick fades for volume instead of on/off immediately
 // TODO: perhaps implement min amount of time music can be playing for?
+// TODO: implement logging
+// TODO: test in situ
 // NOTE: 14 seconds in is some drumming that could work
 
-var audioPath = './audio/dojinsuite.mp3';
+var audioPath = process.env.PWD + '/audio/dojinsuite.mp3';
 var fs        = require('fs');
 var lame      = require('lame');
 var Speaker   = require('speaker');
