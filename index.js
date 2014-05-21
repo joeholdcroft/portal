@@ -34,13 +34,14 @@ var startAudio = function() {
 	audioStream = fs.createReadStream(audioPath)
 		.pipe(new lame.Decoder())
 		.on('format', function(format) {
+			var self    = this;
+			var speaker = new Speaker(format);
+
+			// Re-start the audio when it has finished playing
+			speaker.on('close', startAudio);
+
 			initialMute(function() {
-				var speaker = new Speaker(format);
-
-				// Re-start the audio when it has finished playing
-				speaker.on('close', startAudio);
-
-				this.pipe(speaker);
+				self.pipe(speaker);
 			});
 		});
 };
