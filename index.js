@@ -17,13 +17,13 @@ var lastAudioToggle = null;
 var muted = false;
 var movementStart = null;
 
-var initialMute = function() {
+var initialMute = function(cb) {
 	// Start by muting
 	loudness.setMuted(true, function() {
 		// Set volume to lowest
 		loudness.setVolume(1, function() {
 			muted = true;
-
+			cb();
 			// Now unmute (mute causes problems with volume fade)
 			// loudness.setMuted(false, function() {});
 		});
@@ -34,14 +34,14 @@ var startAudio = function() {
 	audioStream = fs.createReadStream(audioPath)
 		.pipe(new lame.Decoder())
 		.on('format', function(format) {
-			initialMute();
+			initialMute(function() {
+				var speaker = new Speaker(format);
 
-			var speaker = new Speaker(format);
+				// Re-start the audio when it has finished playing
+				speaker.on('close', startAudio);
 
-			// Re-start the audio when it has finished playing
-			speaker.on('close', startAudio);
-
-			this.pipe(speaker);
+				this.pipe(speaker);
+			});
 		});
 };
 
