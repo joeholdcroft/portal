@@ -124,8 +124,8 @@ var runApp = function() {
 						muteSampleStart = Date.now();
 					}
 				}
-			}, 10);
-		});
+			});
+		}, 10);
 	});
 };
 
