@@ -25,7 +25,7 @@ var initialMute = function(cb) {
 			muted = true;
 			cb();
 			// Now unmute (mute causes problems with volume fade)
-			// loudness.setMuted(false, function() {});
+			loudness.setMuted(false, function() {});
 		});
 	});
 };
@@ -41,7 +41,12 @@ var startAudio = function() {
 			speaker.on('close', startAudio);
 
 			initialMute(function() {
-				self.pipe(speaker);
+				try {
+					self.pipe(speaker);
+				}
+				catch (err) {
+					startAudio();
+				}
 			});
 		});
 };
