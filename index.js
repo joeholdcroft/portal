@@ -25,7 +25,7 @@ var initialMute = function() {
 			muted = true;
 
 			// Now unmute (mute causes problems with volume fade)
-			loudness.setMuted(false, function() {});
+			// loudness.setMuted(false, function() {});
 		});
 	});
 };
@@ -49,6 +49,12 @@ var setMuted = function(val) {
 	targetVol = val ? 1 : 100;
 	jump      = val ? 2 : 15;
 
+	loudness.getMuted(function(err, muted) {
+		if (muted) {
+			loudness.setMuted(false);
+		}
+	});
+
 	// Get the current volume
 	loudness.getVolume(function(err, vol) {
 		currentVol = vol;
@@ -57,6 +63,10 @@ var setMuted = function(val) {
 		// Start loop to reduce volume by 1 point every 10ms
 		var updateVolume = function() {
 			if (currentVol === targetVol) {
+				if (1 === targetVol) {
+					loudness.setMuted(true, function() {});
+				}
+
 				return true;
 			}
 
