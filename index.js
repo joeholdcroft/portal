@@ -47,6 +47,10 @@ var setMuted = function(val) {
 
 			currentVol = currentVol + modifier;
 
+			// Ensure volume doesn't exceed boundaries
+			currentVol = (currentVol < 1) ? 1 : currentVol;
+			currentVol = (currentVol > 100) ? 100 : currentVol;
+
 			loudness.setVolume(currentVol, function() {
 				updateVolume();
 			});
