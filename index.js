@@ -32,7 +32,7 @@ var startAudio = function() {
 
 var setMuted = function(val) {
 	targetVol = val ? 1 : 100;
-	jump      = val ? 5 : 20;
+	jump      = val ? 2 : 10;
 
 	// Get the current volume
 	loudness.getVolume(function(err, vol) {
