@@ -51,7 +51,7 @@ var setMuted = function(val) {
 
 	loudness.getMuted(function(err, muted) {
 		if (muted) {
-			loudness.setMuted(false);
+			loudness.setMuted(false, function() {});
 		}
 	});
 
