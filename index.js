@@ -17,17 +17,24 @@ var lastAudioToggle = null;
 var muted = false;
 var movementStart = null;
 
+var initialMute = function() {
+	// Start by muting
+	loudness.setMuted(true, function() {
+		// Set volume to lowest
+		loudness.setVolume(1, function() {
+			muted = true;
+
+			// Now unmute (mute causes problems with volume fade)
+			loudness.setMuted(false, function() {});
+		});
+	});
+};
+
 var startAudio = function() {
 	audioStream = fs.createReadStream(audioPath)
 		.pipe(new lame.Decoder())
 		.on('format', function(format) {
-			// Check audio is not muted (mute causes weirdness for some reason)
-			loudness.setMuted(false, function() {});
-
-			// Start by muting the audio using volume
-			loudness.setVolume(1, function() {
-				muted = true;
-			});
+			initialMute();
 
 			var speaker = new Speaker(format);
 
