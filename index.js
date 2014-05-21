@@ -21,6 +21,14 @@ var startAudio = function() {
 	audioStream = fs.createReadStream(audioPath)
 		.pipe(new lame.Decoder())
 		.on('format', function(format) {
+			// Check audio is not muted (mute causes weirdness for some reason)
+			loudness.setMuted(false, function() {});
+
+			// Start by muting the audio using volume
+			loudness.setVolume(1, function() {
+				muted = true;
+			});
+
 			var speaker = new Speaker(format);
 
 			// Re-start the audio when it has finished playing
@@ -62,15 +70,6 @@ var setMuted = function(val) {
 
 // Start the audio
 startAudio();
-
-// Check audio is not muted
-loudness.setMuted(false, function() {
-});
-
-// Start by muting the audio
-loudness.setVolume(1, function() {
-	muted = true;
-});
 
 // Close pin 7 (PIR) on process interrupt signal
 process.on('SIGINT', function() {
