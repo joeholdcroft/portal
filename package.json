@@ -6,7 +6,7 @@
 		"bindings": "~1.2.0",
 		"pi-gpio" : "~0.0.5",
 		"loudness": "~0.2.1",
-		"speaker" : "~0.1.0",
+		"speaker" : "~0.2.2",
 		"lame"    : "~1.1.0"
 	}
 }
