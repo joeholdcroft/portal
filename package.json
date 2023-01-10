@@ -2,11 +2,11 @@
 	"name"       : "Portal",
 	"author"     : "Joe Holdcroft <info@joeholdcroft.com>",
 	"dependencies": {
-		"debug"   : "~0.8.1",
+		"debug"   : "~3.1.0",
 		"bindings": "~1.2.0",
 		"pi-gpio" : "~0.0.5",
 		"loudness": "~0.2.1",
-		"speaker" : "~0.1.0",
+		"speaker" : "~0.4.0",
 		"lame"    : "~1.1.0"
 	}
 }
